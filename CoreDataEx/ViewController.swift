@@ -7,9 +7,13 @@
 //
 
 import UIKit
+import CoreData
 
 class ViewController: UIViewController{
+    
     var names: [String] = []
+    var movList: [NSManagedObject] = []
+    
     @IBOutlet weak var tableView: UITableView!
     
     override func viewDidLoad() {
@@ -54,8 +58,8 @@ class ViewController: UIViewController{
 extension ViewController: UITableViewDataSource{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        print("itung \(names.count)")
-        return names.count
+        print("itung \(movList.count)")
+        return movList.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
