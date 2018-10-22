@@ -23,6 +23,23 @@ class ViewController: UIViewController{
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else{
+            return
+        }
+        
+        let managedContext = appDelegate.persistentContainer.viewContext
+        
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "Movie")
+        
+        do{
+            movList = try managedContext.fetch(fetchRequest)
+        } catch let error as NSError{
+            print("Error Fetching data . \(error), \(error.userInfo)")
+        }
+    }
+    
     
     @IBAction func addName(_ sender: UIBarButtonItem) {
         let alert = UIAlertController(title: "Name", message: "Add Movie  Name", preferredStyle: .alert)
@@ -35,9 +52,8 @@ class ViewController: UIViewController{
             let nameToSave = textField.text else {
             return
         }
-        self.names.append(nameToSave)
-        print("nama adalah : \(nameToSave)" )
-        print(self.names)
+        print("judul : \(nameToSave)" )
+        self.save(title : nameToSave)
         self.tableView.reloadData()
         }
         
@@ -51,7 +67,32 @@ class ViewController: UIViewController{
     }
     
     
+    
+    func save(title: String){
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            return
+        }
+        
+        let managedContext =
+            appDelegate.persistentContainer.viewContext
+        
+        let entity = NSEntityDescription.entity(forEntityName: "Movie", in: managedContext)!
+        
+        let movTitle = NSManagedObject(entity: entity, insertInto: managedContext)
+        
+        movTitle.setValue(title, forKey: "title")
+        
+        do{
+            try managedContext.save()
+            movList.append(movTitle)
+        }catch let error as NSError{
+            print("Could not save. \(error), \(error.userInfo)")
+        }
+        
+        
+    }
 
+    
 }
 
 /// ui table view extension
@@ -63,14 +104,25 @@ extension ViewController: UITableViewDataSource{
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        let title = movList[indexPath.row]
+        
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell",for: indexPath)
         
-        cell.textLabel?.text = names[indexPath.row]
+        cell.textLabel?.text = title.value(forKeyPath: "title") as? String
         return cell
     }
     
     
 }
+
+
+func fetchData(){
+    
+
+}
+
+
 
 
 
